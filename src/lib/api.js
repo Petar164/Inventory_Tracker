@@ -27,7 +27,7 @@ function pickFiles() {
       for (const file of files) {
         const ext      = (file.name.split('.').pop() || 'jpg').toLowerCase()
         const filename = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
-        const { error } = await supabase.storage.from('images').upload(filename, file)
+        const { error } = await supabase.storage.from('Images').upload(filename, file)
         if (!error) filenames.push(filename)
       }
       resolve(filenames)
@@ -75,7 +75,7 @@ const api = {
       const { invoke } = await tauri()
       return invoke('delete_image', { filename })
     }
-    await supabase.storage.from('images').remove([filename])
+    await supabase.storage.from('Images').remove([filename])
   },
 
   imagePath: async (filename) => {
@@ -90,7 +90,7 @@ const api = {
       return url
     }
 
-    const { data } = supabase.storage.from('images').getPublicUrl(filename)
+    const { data } = supabase.storage.from('Images').getPublicUrl(filename)
     urlCache.set(filename, data.publicUrl)
     return data.publicUrl
   },
