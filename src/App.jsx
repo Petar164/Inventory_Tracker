@@ -141,6 +141,64 @@ export default function App() {
   stats.realizedPL    = stats.revenue - stats.costSold
   stats.unrealizedPL  = stats.worth - items.filter(i=>i.status!=='sold').reduce((s,i)=>s+(+i.purchasePrice||0),0)
 
+  const importCSV = (file) => {
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      const lines = e.target.result.split('\n').filter(l => l.trim())
+      const headers = lines[0].split(',').map(h => h.replace(/^"|"$/g, '').trim())
+      const parse = (row) => {
+        const vals = []
+        let cur = '', inQ = false
+        for (let i = 0; i < row.length; i++) {
+          const c = row[i]
+          if (c === '"' && !inQ) { inQ = true; continue }
+          if (c === '"' && inQ && row[i+1] === '"') { cur += '"'; i++; continue }
+          if (c === '"' && inQ) { inQ = false; continue }
+          if (c === ',' && !inQ) { vals.push(cur); cur = ''; continue }
+          cur += c
+        }
+        vals.push(cur)
+        return vals
+      }
+      const statusReverse = { 'Available':'available','Listed':'listed','On Hold':'onHold','Sold':'sold' }
+      const imported = lines.slice(1).map(row => {
+        const v = parse(row)
+        const get = (col) => v[headers.indexOf(col)] ?? ''
+        return {
+          id: makeId(),
+          brand:           get('Brand'),
+          designer:        get('Designer'),
+          name:            get('Name'),
+          category:        get('Category') || 'Other',
+          era:             get('Era'),
+          collection:      get('Collection'),
+          colorway:        get('Colorway'),
+          materials:       get('Materials'),
+          countryOfOrigin: get('Country'),
+          condition:       get('Condition') || 'Good',
+          conditionNotes:  '',
+          taggedSize:      get('Tagged Size'),
+          measurements:    { unit:'in', pitToPit:'', shoulders:'', sleeveLength:'', bodyLength:'', hemWidth:'', neck:'', chest:'', waist:'', hips:'', frontRise:'', backRise:'', inseam:'', thigh:'', knee:'', legOpening:'', outseam:'', notes:'' },
+          purchasePrice:   +get('Purchase Price') || 0,
+          purchaseDate:    get('Purchase Date') || new Date().toISOString().slice(0,10),
+          purchaseSource:  get('Source'),
+          askingPrice:     +get('Asking Price') || 0,
+          status:          statusReverse[get('Status')] || 'available',
+          listedPlatforms: get('Platforms'),
+          listedDate:      '',
+          salePrice:       get('Sale Price') !== '' ? +get('Sale Price') : null,
+          saleDate:        get('Sale Date') || '',
+          salePlatform:    get('Sale Platform'),
+          notes:           get('Notes'),
+          imageFileNames:  [],
+          dateAdded:       get('Date Added') ? new Date(get('Date Added')).toISOString() : new Date().toISOString(),
+        }
+      }).filter(i => i.brand || i.name)
+      save([...imported, ...items])
+    }
+    reader.readAsText(file)
+  }
+
   const exportCSV = () => {
     const headers = ['Brand','Designer','Name','Category','Era','Collection','Colorway','Materials','Country','Condition','Tagged Size','Purchase Price','Purchase Date','Source','Asking Price','Status','Platforms','Sale Price','Sale Date','Sale Platform','Notes','Date Added']
     const rows = items.map(i => [
@@ -176,6 +234,7 @@ export default function App() {
           onAdd={() => setShowAdd(true)}
           onDetail={setDetail}
           onExport={exportCSV}
+          onImport={importCSV}
         />
       </div>
 

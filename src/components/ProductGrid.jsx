@@ -5,7 +5,7 @@ import { SORT_OPTIONS, STATUS_LABELS } from '../App.jsx'
 
 export default function ProductGrid({
   items, filter, search, setSearch, sort, setSort,
-  stats, onAdd, onDetail, onExport
+  stats, onAdd, onDetail, onExport, onImport
 }) {
   const [sortOpen, setSortOpen] = useState(false)
   const sortRef = useRef(null)
@@ -38,6 +38,7 @@ export default function ProductGrid({
           setSort={setSort}
           onAdd={onAdd}
           onExport={onExport}
+          onImport={onImport}
         />
         <StatsPanel stats={stats} items={items} />
       </div>
@@ -59,6 +60,7 @@ export default function ProductGrid({
         setSort={setSort}
         onAdd={onAdd}
         onExport={onExport}
+        onImport={onImport}
       />
 
       <div className="grid-scroll">
@@ -82,7 +84,9 @@ export default function ProductGrid({
   )
 }
 
-function TopBar({ filterLabel, search, setSearch, count, sortLabel, sortOpen, setSortOpen, sortRef, sort, setSort, onAdd, onExport }) {
+function TopBar({ filterLabel, search, setSearch, count, sortLabel, sortOpen, setSortOpen, sortRef, sort, setSort, onAdd, onExport, onImport }) {
+  const importRef = useRef(null)
+
   return (
     <div className="topbar">
       <span className="topbar-title">{filterLabel}</span>
@@ -123,6 +127,14 @@ function TopBar({ filterLabel, search, setSearch, count, sortLabel, sortOpen, se
           )}
         </div>
 
+        <input
+          ref={importRef}
+          type="file"
+          accept=".csv"
+          style={{ display: 'none' }}
+          onChange={e => { if (e.target.files[0]) { onImport(e.target.files[0]); e.target.value = '' } }}
+        />
+        <button className="export-btn" onClick={() => importRef.current.click()}>↓ Import</button>
         <button className="export-btn" onClick={onExport}>↑ Export</button>
         <button className="add-btn" onClick={onAdd}>+ New Item</button>
       </div>
