@@ -1,0 +1,22 @@
+{
+  "name": "archive-inventory",
+  "version": "1.0.0",
+  "description": "Archival clothing inventory manager",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "tauri": "tauri"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.11.1",
+    "@vitejs/plugin-react": "^4.3.4",
+    "vite": "^6.3.4"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.106.2",
+    "@tauri-apps/api": "^2.11.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  }
+}

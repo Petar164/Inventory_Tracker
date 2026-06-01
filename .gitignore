@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.env
+.env.local
+src-tauri/target/
+.build/
+.claude/
+.swiftpm/
+*.orig
